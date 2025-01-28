@@ -1,5 +1,6 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
+const WebSocket = require("ws");
 
 const connectDB = async () => {
     const MONGO_URL = process.env.MONGO_URL;
@@ -18,4 +19,23 @@ const connectDB = async () => {
     }
 };
 
-module.exports = connectDB;
+const initWebSocket = () => {
+    const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT;
+    const wss = new WebSocket.Server({ port: WEBSOCKET_PORT });
+
+    wss.on("connection", function connection(ws) {
+        console.log("New client connected");
+
+        ws.on("message", function incoming(message) {
+            console.log("received: %s", message);
+            ws.send("le message a ete recu");
+        });
+    });
+
+    return wss;
+};
+
+module.exports = {
+    connectDB,
+    initWebSocket
+};
